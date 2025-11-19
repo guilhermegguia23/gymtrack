@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="alert alert-success">
+  Progresso salvo com sucesso.
+</div>
+<a class="btn btn-primary" href="{% url 'treinos:treino_do_dia' %}">Voltar</a>
+{% endblock %}
+

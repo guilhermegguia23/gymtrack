@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card form-card">
+  <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+    <div>
+      <h2 class="h4 mb-0">{% if exercicio %}Editar{% else %}Novo{% endif %} Exercicio</h2>
+      <p class="mb-0 text-muted">Defina nome, grupo muscular e descricao do movimento.</p>
+    </div>
+  </div>
+  <div class="card-body">
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="{% if field.field.widget.__class__.__name__ == 'Textarea' %}col-12{% else %}col-md-6{% endif %}">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <small class="text-muted d-block">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">
+                {{ field.errors|striptags }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-end gap-2 form-actions mt-4">
+        <a class="btn btn-outline-secondary" href="{% url 'treinos:lista_exercicios' %}">Cancelar</a>
+        <button class="btn btn-primary" type="submit">
+          {% if exercicio %}Atualizar Exercicio{% else %}Cadastrar Exercicio{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

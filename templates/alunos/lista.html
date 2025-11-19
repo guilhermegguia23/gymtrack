@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card table-card">
+  <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+    <div>
+      <h2 class="h4 mb-0">Alunos</h2>
+      <p class="text-muted mb-0">Gerencie cadastros e acesse rapidamente as fichas.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'treinos:aluno_create' %}">Novo Aluno</a>
+  </div>
+  <div class="card-body">
+    {% if page_obj and page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle data-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                {% with next_dir=sort_options.nome %}
+                  <a class="table-sort {% if current_sort == 'nome' %}table-sort--active{% endif %}"
+                    href="?ordenar=nome&direcao={{ next_dir }}">
+                    Nome
+                    {% if current_sort == 'nome' %}
+                      <span class="table-sort__icon table-sort__icon--{{ current_direction }}"></span>
+                    {% endif %}
+                  </a>
+                {% endwith %}
+              </th>
+              <th scope="col">
+                {% with next_dir=sort_options.email %}
+                  <a class="table-sort {% if current_sort == 'email' %}table-sort--active{% endif %}"
+                    href="?ordenar=email&direcao={{ next_dir }}">
+                    Email
+                    {% if current_sort == 'email' %}
+                      <span class="table-sort__icon table-sort__icon--{{ current_direction }}"></span>
+                    {% endif %}
+                  </a>
+                {% endwith %}
+              </th>
+              <th scope="col">
+                {% with next_dir=sort_options.data_nascimento %}
+                  <a class="table-sort {% if current_sort == 'data_nascimento' %}table-sort--active{% endif %}"
+                    href="?ordenar=data_nascimento&direcao={{ next_dir }}">
+                    Nascimento
+                    {% if current_sort == 'data_nascimento' %}
+                      <span class="table-sort__icon table-sort__icon--{{ current_direction }}"></span>
+                    {% endif %}
+                  </a>
+                {% endwith %}
+              </th>
+              <th scope="col">
+                {% with next_dir=sort_options.ativo %}
+                  <a class="table-sort {% if current_sort == 'ativo' %}table-sort--active{% endif %}"
+                    href="?ordenar=ativo&direcao={{ next_dir }}">
+                    Status
+                    {% if current_sort == 'ativo' %}
+                      <span class="table-sort__icon table-sort__icon--{{ current_direction }}"></span>
+                    {% endif %}
+                  </a>
+                {% endwith %}
+              </th>
+              <th scope="col" class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for aluno in page_obj %}
+              <tr>
+                <td>
+                  <strong>{{ aluno.nome }}</strong>
+                </td>
+                <td>
+                  <span class="text-muted small d-block">Email</span>
+                  {{ aluno.email }}
+                </td>
+                <td>
+                  <span class="text-muted small d-block">Data</span>
+                  {{ aluno.data_nascimento|date:"d/m/Y" }}
+                </td>
+                <td>
+                  {% if aluno.ativo %}
+                    <span class="badge text-bg-success">Ativo</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">Inativo</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a class="btn btn-outline-secondary" href="{% url 'treinos:aluno_update' aluno.pk %}">Editar</a>
+                    <a class="btn btn-outline-danger" href="{% url 'treinos:aluno_delete' aluno.pk %}">Excluir</a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center text-muted py-5">
+        Nenhum aluno cadastrado até o momento.
+      </div>
+    {% endif %}
+  </div>
+  {% if page_obj %}
+    {% with query='ordenar='|add:current_sort|add:'&direcao='|add:current_direction %}
+      <div class="card-footer d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
+        {% if page_obj.paginator.count %}
+          <small class="text-muted">
+            Exibindo {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} alunos
+          </small>
+        {% else %}
+          <small class="text-muted">Nenhum aluno encontrado</small>
+        {% endif %}
+        <nav aria-label="Paginação de alunos">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              {% if page_obj.has_previous %}
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ query }}">Anterior</a>
+              {% else %}
+                <span class="page-link">Anterior</span>
+              {% endif %}
+            </li>
+            {% for num in page_obj.paginator.page_range %}
+              <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                {% if num == page_obj.number %}
+                  <span class="page-link">{{ num }}</span>
+                {% else %}
+                  <a class="page-link" href="?page={{ num }}&{{ query }}">{{ num }}</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              {% if page_obj.has_next %}
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query }}">Próximo</a>
+              {% else %}
+                <span class="page-link">Próximo</span>
+              {% endif %}
+            </li>
+          </ul>
+        </nav>
+      </div>
+    {% endwith %}
+  {% endif %}
+</div>
+{% endblock %}

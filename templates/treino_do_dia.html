@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load treinos_tags %}
+{% block content %}
+<div class="card">
+  <div class="card-header">Treino do Dia</div>
+  <div class="card-body">
+    {% if mensagem %}
+      <div class="alert alert-info">{{ mensagem }}</div>
+    {% elif treino %}
+      <h5>Aluno: {{ treino.aluno.nome }}</h5>
+      <p>Ficha: {{ treino.ficha }}</p>
+      <form method="post">
+        {% csrf_token %}
+        <ul class="list-group mb-3">
+          {% for item in ficha_exercicios %}
+            {% with prog=progresso|get_item:item.exercicio.id %}
+              <li class="list-group-item d-flex align-items-center">
+                <input class="form-check-input me-3" type="checkbox" name="exercicios" value="{{ item.exercicio.id }}"
+                  {% if prog and prog.concluido %}checked{% endif %}>
+                <div>
+                  <strong>{{ item.exercicio.nome }}</strong><br>
+                  <small>{{ item.series }} series x {{ item.repeticoes }} repeticoes</small>
+                </div>
+              </li>
+            {% endwith %}
+          {% empty %}
+            <li class="list-group-item text-muted">Nenhum exercicio configurado para esta ficha.</li>
+          {% endfor %}
+        </ul>
+        <button class="btn btn-primary me-2" name="acao" value="salvar" type="submit">Salvar Progresso</button>
+        <button class="btn btn-success" name="acao" value="finalizar" type="submit">Finalizar Treino</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

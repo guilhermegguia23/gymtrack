@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="alert alert-success">
+  Treino finalizado com sucesso.
+</div>
+<div class="card">
+  <div class="card-header">
+    Resumo do Treino
+  </div>
+  <div class="card-body">
+    <p><strong>Aluno:</strong> {{ treino.aluno.nome }}</p>
+    <p><strong>Data:</strong> {{ treino.data|date:"d/m/Y" }}</p>
+    <ul class="list-group">
+      {% for item in ficha_exercicios %}
+      <li class="list-group-item">
+        <strong>{{ item.exercicio.nome }}</strong> - {{ item.series }} x {{ item.repeticoes }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<a class="btn btn-primary mt-3" href="{% url 'treinos:treino_do_dia' %}">Voltar</a>
+{% endblock %}
+

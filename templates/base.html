@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GymTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+  </head>
+  <body class="{% if user.is_authenticated %}app-auth{% else %}app-guest{% endif %}">
+    {% if user.is_authenticated %}
+      <div class="app-shell">
+        <aside class="sidebar">
+          <div class="sidebar__brand">
+            <a href="{% url 'treinos:lista_alunos' %}">GymTrack</a>
+            <span class="sidebar__tag">Painel</span>
+          </div>
+          <nav class="sidebar__menu">
+            <a class="sidebar__link" href="{% url 'treinos:lista_alunos' %}">Alunos</a>
+            <a class="sidebar__link" href="{% url 'treinos:lista_exercicios' %}">Exercícios</a>
+            <a class="sidebar__link" href="{% url 'treinos:criar_ficha' %}">Criar Ficha</a>
+            <a class="sidebar__link" href="{% url 'treinos:treino_do_dia' %}">Treino do Dia</a>
+            <a class="sidebar__link" href="{% url 'treinos:historico' %}">Histórico</a>
+          </nav>
+          <div class="sidebar__footer">
+            <div class="sidebar__user">
+              <span class="sidebar__hello">Olá,</span>
+              <strong>{{ user.username }}</strong>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="w-100">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-light w-100">Sair</button>
+            </form>
+          </div>
+        </aside>
+        <main class="main-panel">
+          <header class="main-panel__header">
+            <div>
+              <p class="text-muted mb-0">GymTrack</p>
+              <h1 class="main-panel__title">Gestão inteligente de treinos</h1>
+            </div>
+            <div class="d-none d-md-flex gap-2">
+              <a href="{% url 'treinos:criar_ficha' %}" class="btn btn-primary">+ Nova Ficha</a>
+              <a href="{% url 'treinos:treino_do_dia' %}" class="btn btn-outline-primary">Treino do Dia</a>
+            </div>
+          </header>
+          <div class="main-panel__content">
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+          </div>
+        </main>
+      </div>
+    {% else %}
+      <div class="login-hero">
+        <div class="login-hero__form">
+          {% block guest_content %}
+            <div class="login-card shadow-lg">
+              <div class="login-card__header">
+                <h2>Acesse o painel</h2>
+                <p>Entre com seu usuário para visualizar cadastros e treinos.</p>
+              </div>
+              <a class="btn btn-primary w-100" href="{% url 'login' %}">Ir para a tela de login</a>
+            </div>
+          {% endblock %}
+        </div>
+      </div>
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

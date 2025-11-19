@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mb-3">
+  <div class="card-header">
+    Criar Ficha de Treino
+  </div>
+  <div class="card-body">
+    {% if sem_exercicios %}
+      <div class="alert alert-warning">
+        Nenhum exercício cadastrado. Cadastre exercícios antes de prosseguir.
+      </div>
+      <a class="btn btn-primary" href="{% url 'treinos:exercicio_create' %}">Cadastrar Exercícios</a>
+    {% else %}
+      <form method="post">
+        {% csrf_token %}
+        <h5>Detalhes da Ficha</h5>
+        {{ form.as_p }}
+        <hr>
+        <h5>Exercícios</h5>
+        {{ formset.management_form }}
+        {% for form in formset %}
+          <div class="border rounded p-3 mb-3">
+            {{ form.as_p }}
+          </div>
+        {% endfor %}
+        <button class="btn btn-success" type="submit">Salvar Ficha</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
