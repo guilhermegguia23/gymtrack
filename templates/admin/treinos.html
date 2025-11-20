@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Admin - Treinos dos Alunos" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">{% trans "Treinos dos Alunos" %}</h1>
+
+    <form method="get" class="form-inline mb-4">
+        <label for="aluno_id" class="mr-2">{% trans "Selecione um Aluno:" %}</label>
+        <select name="aluno_id" id="aluno_id" class="form-control mr-2" onchange="this.form.submit()">
+            <option value="">---------</option>
+            {% for aluno in alunos %}
+                <option value="{{ aluno.id }}" {% if aluno.id == selected_aluno_id %}selected{% endif %}>{{ aluno.nome }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if selected_aluno_id %}
+        <h2 class="my-4">{% trans "Treinos de" %} {{ selected_aluno.nome }}</h2>
+        {% if treinos %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Data" %}</th>
+                        <th>{% trans "Ficha" %}</th>
+                        <th>{% trans "Finalizado" %}</th>
+                        <th>{% trans "Ações" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treino in treinos %}
+                        <tr>
+                            <td>{{ treino.data|date:"d/m/Y" }}</td>
+                            <td>{{ treino.ficha }}</td>
+                            <td>{% if treino.finalizado %}{% trans "Sim" %}{% else %}{% trans "Não" %}{% endif %}</td>
+                            <td>
+                                <a href="{% url 'treinos:detalhes_treino' treino.pk %}" class="btn btn-sm btn-info">{% trans "Ver" %}</a>
+                                <a href="#" class="btn btn-sm btn-warning">{% trans "Editar" %}</a>
+                                <form method="post" action="{% url 'treinos:admin_treinos' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="treino_id" value="{{ treino.id }}">
+                                    <input type="hidden" name="aluno_id" value="{{ selected_aluno_id }}">
+                                    <button type="submit" name="delete" class="btn btn-sm btn-danger">{% trans "Excluir" %}</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>{% trans "Nenhum treino encontrado para este aluno." %}</p>
+        {% endif %}
+    {% else %}
+        <p>{% trans "Selecione um aluno para ver seus treinos." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

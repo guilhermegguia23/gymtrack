@@ -15,9 +15,26 @@
       {% endif %}
       <div class="row g-3">
         {% for field in form %}
-          <div class="{% if field.field.widget.__class__.__name__ == 'Textarea' %}col-12{% else %}col-md-6{% endif %}">
+          <div class="{% if field.name == 'descricao' %}col-12{% else %}col-md-6{% endif %}">
             <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
+            {% if field.name == "grupo_muscular" %}
+              <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-select">
+                <option value="">Selecione...</option>
+                <option value="Peito"{% if field.value == "Peito" %} selected{% endif %}>Peito</option>
+                <option value="Costas"{% if field.value == "Costas" %} selected{% endif %}>Costas</option>
+                <option value="Ombros"{% if field.value == "Ombros" %} selected{% endif %}>Ombros</option>
+                <option value="Bíceps"{% if field.value == "Bíceps" %} selected{% endif %}>Bíceps</option>
+                <option value="Tríceps"{% if field.value == "Tríceps" %} selected{% endif %}>Tríceps</option>
+                <option value="Antebraço"{% if field.value == "Antebraço" %} selected{% endif %}>Antebraço</option>
+                <option value="Abdômen"{% if field.value == "Abdômen" %} selected{% endif %}>Abdômen</option>
+                <option value="Glúteos"{% if field.value == "Glúteos" %} selected{% endif %}>Glúteos</option>
+                <option value="Quadríceps"{% if field.value == "Quadríceps" %} selected{% endif %}>Quadríceps</option>
+                <option value="Posterior de coxa"{% if field.value == "Posterior de coxa" %} selected{% endif %}>Posterior de coxa</option>
+                <option value="Panturrilhas"{% if field.value == "Panturrilhas" %} selected{% endif %}>Panturrilhas</option>
+              </select>
+            {% else %}
+              {{ field }}
+            {% endif %}
             {% if field.help_text %}
               <small class="text-muted d-block">{{ field.help_text }}</small>
             {% endif %}

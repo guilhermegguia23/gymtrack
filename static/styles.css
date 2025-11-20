@@ -47,11 +47,23 @@ body {
     gap: 0.35rem;
 }
 
-.sidebar__brand a {
+.sidebar__brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     text-decoration: none;
     color: #fff;
     font-size: 1.4rem;
     font-weight: 700;
+}
+
+.sidebar__logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.35rem;
 }
 
 .sidebar__tag {
@@ -81,6 +93,13 @@ body {
     color: #fff;
     background: rgba(255, 255, 255, 0.15);
     transform: translateX(4px);
+}
+
+.sidebar__link--active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .sidebar__footer {
@@ -299,12 +318,29 @@ body {
 
 .form-stack .form-check {
     padding-left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.form-stack .form-check-label {
+    margin-top: 0.25rem;
 }
 
 .form-stack .form-check-input {
-    margin-right: 0.85rem;
     width: 2.5rem;
     height: 1.25rem;
+    margin-top: 0;
+    margin-right: 0.35rem;
+}
+
+.form-stack .form-check.form-switch {
+    padding-left: 0;
+}
+
+.form-stack .form-check-input {
+    margin-left: 0;
 }
 
 .form-stack .invalid-feedback {
@@ -313,6 +349,33 @@ body {
 
 .form-actions .btn {
     min-width: 150px;
+}
+
+.exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.exercise-card {
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(20, 33, 61, 0.08);
+}
+
+.exercise-card .form-label {
+    font-weight: 600;
+}
+
+.exercise-card .btn-outline-danger {
+    border-color: rgba(255, 77, 79, 0.4);
+    color: #ff4d4f;
+}
+
+.exercise-card .btn-outline-danger:hover {
+    background: rgba(255, 77, 79, 0.08);
+    border-color: #ff4d4f;
+    color: #d9363e;
 }
 
 @media (max-width: 992px) {

@@ -13,15 +13,18 @@
       <div class="app-shell">
         <aside class="sidebar">
           <div class="sidebar__brand">
-            <a href="{% url 'treinos:lista_alunos' %}">GymTrack</a>
+            <a class="sidebar__brand-link" href="{% url 'treinos:lista_alunos' %}">
+              <img class="sidebar__logo" src="{% static 'images/peso.png' %}" alt="GymTrack">
+              <span>GymTrack</span>
+            </a>
             <span class="sidebar__tag">Painel</span>
           </div>
           <nav class="sidebar__menu">
-            <a class="sidebar__link" href="{% url 'treinos:lista_alunos' %}">Alunos</a>
-            <a class="sidebar__link" href="{% url 'treinos:lista_exercicios' %}">Exercícios</a>
-            <a class="sidebar__link" href="{% url 'treinos:criar_ficha' %}">Criar Ficha</a>
-            <a class="sidebar__link" href="{% url 'treinos:treino_do_dia' %}">Treino do Dia</a>
-            <a class="sidebar__link" href="{% url 'treinos:historico' %}">Histórico</a>
+            <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_alunos' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_alunos' %}">Alunos</a>
+            <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_exercicios' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_exercicios' %}">Exercícios</a>
+            <a class="sidebar__link {% if request.resolver_match.url_name == 'criar_ficha' %}sidebar__link--active{% endif %}" href="{% url 'treinos:criar_ficha' %}">Criar Ficha</a>
+            <a class="sidebar__link {% if request.resolver_match.url_name == 'treino_do_dia' %}sidebar__link--active{% endif %}" href="{% url 'treinos:treino_do_dia' %}">Treino do Dia</a>
+            <a class="sidebar__link {% if request.resolver_match.url_name == 'historico' %}sidebar__link--active{% endif %}" href="{% url 'treinos:historico' %}">Histórico</a>
           </nav>
           <div class="sidebar__footer">
             <div class="sidebar__user">

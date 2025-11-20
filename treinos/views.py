@@ -121,7 +121,11 @@ def exercicio_create(request: HttpRequest) -> HttpResponse:
         form.save()
         messages.success(request, _("Exercício salvo com sucesso."))
         return redirect("treinos:lista_exercicios")
-    return render(request, "exercicios/form.html", {"form": form})
+    return render(
+        request,
+        "exercicios/form.html",
+        {"form": form, "grupos_musculares": _listar_grupos_musculares()},
+    )
 
 
 @login_required
@@ -133,7 +137,15 @@ def exercicio_update(request: HttpRequest, pk: int) -> HttpResponse:
         form.save()
         messages.success(request, _("Exercício atualizado."))
         return redirect("treinos:lista_exercicios")
-    return render(request, "exercicios/form.html", {"form": form, "exercicio": exercicio})
+    return render(
+        request,
+        "exercicios/form.html",
+        {
+            "form": form,
+            "exercicio": exercicio,
+            "grupos_musculares": _listar_grupos_musculares(),
+        },
+    )
 
 
 @login_required
@@ -154,7 +166,7 @@ def criar_ficha(request: HttpRequest) -> HttpResponse:
         messages.warning(request, _("Nenhum exercício cadastrado. Cadastre exercícios antes de prosseguir."))
         return render(
             request,
-            "criar_ficha.html",
+            "fichas/criar.html",
             {"form": FichaTreinoForm(), "formset": None, "sem_exercicios": True},
         )
 
@@ -170,13 +182,13 @@ def criar_ficha(request: HttpRequest) -> HttpResponse:
                     formset.instance = ficha
                     formset.save()
                 messages.success(request, _("Ficha de treino criada com sucesso."))
-                return render(request, "sucesso_ficha.html", {"ficha": ficha})
+                return render(request, "fichas/sucesso.html", {"ficha": ficha})
             except Exception:
                 messages.error(request, _("Erro ao salvar ficha de treino. Tente novamente mais tarde."))
         else:
             messages.error(request, _("Verifique os dados informados."))
 
-    return render(request, "criar_ficha.html", {"form": form, "formset": formset, "sem_exercicios": False})
+    return render(request, "fichas/criar.html", {"form": form, "formset": formset, "sem_exercicios": False})
 
 
 def _obter_aluno_logado(user) -> Aluno | None:
@@ -224,7 +236,14 @@ def _ordenar_e_paginar(
     return page_obj, sort_field, direction
 
 
-@login_required
+def _listar_grupos_musculares() -> list[str]:
+    return list(
+        Exercicio.objects.order_by("grupo_muscular")
+        .values_list("grupo_muscular", flat=True)
+        .distinct()
+    )
+
+
 @login_required
 def treino_do_dia(request: HttpRequest) -> HttpResponse:
     # Mostra o treino diario do aluno com checkboxes para controlar progresso.
@@ -293,7 +312,6 @@ def treino_do_dia(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@login_required
 def historico_treinos(request: HttpRequest) -> HttpResponse:
     # Listagem de treinos finalizados do aluno com ordenacao e paginacao.
     aluno = _obter_aluno_logado(request.user)
@@ -307,7 +325,7 @@ def historico_treinos(request: HttpRequest) -> HttpResponse:
     try:
         treinos_qs = TreinoDiario.objects.filter(aluno=aluno, finalizado=True).select_related("ficha")
     except Exception:
-        messages.error(request, _("Erro ao carregar hist??rico de treinos."))
+        messages.error(request, _("Erro ao carregar histórico de treinos."))
         return render(request, "historico_treinos.html", {"treinos": []})
 
     if not treinos_qs.exists():
@@ -338,7 +356,6 @@ def historico_treinos(request: HttpRequest) -> HttpResponse:
         },
     )
 
-@login_required
 @login_required
 def detalhes_treino(request: HttpRequest, pk: int) -> HttpResponse:
     # Mostra detalhes de um treino especifico com todos os exercicios.

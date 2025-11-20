@@ -7,7 +7,7 @@
   <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
     <div>
       <h2 class="h4 mb-0">Fichas de Treino</h2>
-      <p class="text-muted mb-0">Acompanhe o histórico e reorganize rapidamente por data ou status.</p>
+      <p class="text-muted mb-0">Acompanhe o histÃ³rico e reorganize rapidamente por data ou status.</p>
     </div>
   </div>
   {% if page_obj %}
@@ -40,7 +40,7 @@
                     </a>
                   {% endwith %}
                 </th>
-                <th scope="col" class="text-end">Ações</th>
+                <th scope="col" class="text-end">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
@@ -82,7 +82,7 @@
         {% else %}
           <small class="text-muted">Nenhum registro encontrado</small>
         {% endif %}
-        <nav aria-label="Paginação de fichas">
+        <nav aria-label="PaginaÃ§Ã£o de fichas">
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
               {% if page_obj.has_previous %}
@@ -102,9 +102,9 @@
             {% endfor %}
             <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
               {% if page_obj.has_next %}
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query }}">Próximo</a>
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query }}">PrÃ³ximo</a>
               {% else %}
-                <span class="page-link">Próximo</span>
+                <span class="page-link">PrÃ³ximo</span>
               {% endif %}
             </li>
           </ul>
@@ -117,7 +117,7 @@
         {% if mensagem %}
           {{ mensagem }}
         {% else %}
-          Não há fichas disponíveis para exibição.
+          NÃ£o hÃ¡ fichas disponÃ­veis para exibiÃ§Ã£o.
         {% endif %}
       </div>
     </div>

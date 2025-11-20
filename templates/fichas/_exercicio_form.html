@@ -1,0 +1,30 @@
+{% with current_index=index|default_if_none:0 %}
+<div class="exercise-card card mb-3" data-index="{{ current_index }}">
+  {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary fw-semibold">Exercicio</span>
+        <span class="text-muted small">Item <span class="exercise-number"></span></span>
+      </div>
+      <button type="button" class="btn btn-outline-danger btn-sm js-remove-exercicio">Remover</button>
+    </div>
+    <div class="row g-3 align-items-end">
+      {% for field in form.visible_fields %}
+        <div class="{% if field.name == 'exercicio' %}col-lg-5{% elif field.name == 'ordem' %}col-md-2 col-6{% else %}col-md-3 col-6{% endif %}">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="text-muted d-block">{{ field.help_text }}</small>
+          {% endif %}
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">
+              {{ field.errors|striptags }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endwith %}

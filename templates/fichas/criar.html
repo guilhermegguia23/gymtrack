@@ -1,32 +1,153 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card mb-3">
-  <div class="card-header">
-    Criar Ficha de Treino
+<div class="card form-card">
+  <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+    <div>
+      <h2 class="h4 mb-0">Nova Ficha de Treino</h2>
+      <p class="mb-0 text-muted">Selecione o aluno e monte a lista de exercicios dinamicamente.</p>
+    </div>
   </div>
   <div class="card-body">
     {% if sem_exercicios %}
       <div class="alert alert-warning">
-        Nenhum exercício cadastrado. Cadastre exercícios antes de prosseguir.
+        Nenhum exercicio cadastrado. Cadastre exercicios antes de prosseguir.
       </div>
-      <a class="btn btn-primary" href="{% url 'treinos:exercicio_create' %}">Cadastrar Exercícios</a>
+      <a class="btn btn-primary" href="{% url 'treinos:exercicio_create' %}">Cadastrar Exercicios</a>
     {% else %}
-      <form method="post">
+      <form method="post" class="form-stack" id="ficha-form">
         {% csrf_token %}
-        <h5>Detalhes da Ficha</h5>
-        {{ form.as_p }}
-        <hr>
-        <h5>Exercícios</h5>
-        {{ formset.management_form }}
-        {% for form in formset %}
-          <div class="border rounded p-3 mb-3">
-            {{ form.as_p }}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          {% for field in form %}
+            <div class="{% if field.name == 'observacoes' %}col-12{% else %}col-md-6{% endif %}">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <small class="text-muted d-block">{{ field.help_text }}</small>
+              {% endif %}
+              {% if field.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ field.errors|striptags }}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="mb-1">Exercicios</h5>
+            <p class="text-muted mb-0 small">Adicione, reordene e ajuste os exercicios conforme a ficha.</p>
           </div>
-        {% endfor %}
-        <button class="btn btn-success" type="submit">Salvar Ficha</button>
+          <button type="button" class="btn btn-outline-primary" id="add-exercicio">+ Adicionar exercicio</button>
+        </div>
+
+        {{ formset.management_form }}
+        <div id="exercicios-container" class="exercise-list">
+          {% for subform in formset %}
+            {% include "fichas/_exercicio_form.html" with form=subform index=forloop.counter0 %}
+          {% empty %}
+            {% include "fichas/_exercicio_form.html" with form=formset.empty_form index=0 %}
+          {% endfor %}
+        </div>
+
+        <template id="exercicio-empty-form">
+          {% include "fichas/_exercicio_form.html" with form=formset.empty_form index="__prefix__" %}
+        </template>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 form-actions">
+          <a class="btn btn-outline-secondary" href="{% url 'treinos:lista_alunos' %}">Cancelar</a>
+          <button class="btn btn-primary" type="submit">Salvar Ficha</button>
+        </div>
       </form>
     {% endif %}
   </div>
 </div>
-{% endblock %}
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const addBtn = document.getElementById("add-exercicio");
+  const container = document.getElementById("exercicios-container");
+  const totalInput = document.querySelector("[name$='-TOTAL_FORMS']");
+  const template = document.getElementById("exercicio-empty-form");
+
+  if (!addBtn || !container || !totalInput || !template) return;
+
+  const formPrefix = totalInput.name.replace("-TOTAL_FORMS", "");
+  const indexRegex = new RegExp(`${formPrefix}-(\\d+|__prefix__)-`, "g");
+
+  const updateIndexes = () => {
+    const cards = Array.from(container.querySelectorAll(".exercise-card"));
+    cards.forEach((card, index) => {
+      card.dataset.index = index;
+      card.querySelectorAll(".exercise-number").forEach((el) => {
+        el.textContent = index + 1;
+      });
+
+      card.querySelectorAll("input, select, textarea, label").forEach((el) => {
+        ["name", "id", "for"].forEach((attr) => {
+          const current = el.getAttribute(attr);
+          if (!current) return;
+          el.setAttribute(attr, current.replace(indexRegex, `${formPrefix}-${index}-`));
+        });
+      });
+
+      const ordemField = card.querySelector("input[name$='-ordem']");
+      if (ordemField && !ordemField.value) {
+        ordemField.value = index + 1;
+      }
+    });
+    totalInput.value = cards.length;
+  };
+
+  const addExercicio = () => {
+    const clone = template.content.cloneNode(true);
+    container.appendChild(clone);
+    updateIndexes();
+  };
+
+  const resetCardFields = (card) => {
+    card.querySelectorAll("input, select, textarea").forEach((el) => {
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = false;
+      } else if (el.tagName === "SELECT") {
+        el.selectedIndex = 0;
+      } else {
+        el.value = "";
+      }
+    });
+  };
+
+  const removeExercicio = (card) => {
+    const cards = container.querySelectorAll(".exercise-card");
+    if (cards.length <= 1) {
+      resetCardFields(card);
+      updateIndexes();
+      return;
+    }
+    card.remove();
+    updateIndexes();
+  };
+
+  container.addEventListener("click", (event) => {
+    const btn = event.target.closest(".js-remove-exercicio");
+    if (!btn) return;
+    event.preventDefault();
+    const card = btn.closest(".exercise-card");
+    if (card) removeExercicio(card);
+  });
+
+  addBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    addExercicio();
+  });
+
+  updateIndexes();
+});
+</script>
+{% endblock %}
