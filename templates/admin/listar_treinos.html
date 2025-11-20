@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card table-card">
+  <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+    <h2 class="h4 mb-0">Treinos</h2>
+
+    {% if not aluno %}
+    <!-- Pesquisa por aluno (instrutor) -->
+    <form method="get" class="d-flex gap-2">
+      <input type="text" name="aluno" placeholder="Pesquisar aluno"
+             value="{{ aluno_nome }}" class="form-control form-control-sm">
+      <button class="btn btn-sm btn-primary" type="submit">Buscar</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="card-body">
+    {% if page_obj %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Ficha</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for treino in page_obj %}
+          <tr>
+            <td>{{ treino.aluno.nome }}</td>
+            <td>{{ treino.ficha.nome }}</td>
+            <td>{{ treino.data|date:"d/m/Y" }}</td>
+            <td>
+              {% if treino.finalizado %}
+              <span class="badge text-bg-success">Finalizado</span>
+              {% else %}
+              <span class="badge text-bg-warning text-dark">Pendente</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'treinos:treino_do_dia' %}" class="btn btn-sm btn-outline-primary">Ver</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+    <p class="text-muted text-center">Nenhum treino encontrado.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

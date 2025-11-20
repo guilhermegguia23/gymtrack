@@ -27,6 +27,8 @@ class Exercicio(models.Model):
 
 
 class FichaTreino(models.Model):
+    nome = models.CharField(max_length=100, blank=True)
+    motivo = models.CharField(max_length=100, blank=True)
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name="fichas")
     data_criacao = models.DateField(auto_now_add=True)
     observacoes = models.TextField(blank=True)

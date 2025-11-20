@@ -172,6 +172,10 @@ def criar_ficha(request: HttpRequest) -> HttpResponse:
 
     ficha = FichaTreino()
     form = FichaTreinoForm(request.POST or None)
+
+    # inline formSet
+    # relacionamento 1xN de ficha com exercicios
+    # pode cadastrar mais de um exercicio por ficha de treinamento
     formset = FichaExercicioFormSet(request.POST or None, instance=ficha, prefix="exercicios")
 
     if request.method == "POST":
@@ -310,6 +314,113 @@ def treino_do_dia(request: HttpRequest) -> HttpResponse:
         {"treino": treino, "ficha_exercicios": ficha_exercicios, "progresso": progresso_map},
     )
 
+
+@login_required
+def lista_treinos(request):
+    """
+    Lista todos os treinos. 
+    Se o usuário for aluno, lista apenas os treinos dele.
+    Mais tarde poderá receber filtros por aluno, por data, etc.
+    """
+
+    # Obtém aluno logado (se existir)
+    aluno = _obter_aluno_logado(request.user)
+
+    treinos = TreinoDiario.objects.select_related("aluno", "ficha") \
+        .prefetch_related("ficha__exercicios__exercicio")
+
+    # Se for aluno → só vê os próprios treinos
+    if aluno:
+        treinos = treinos.filter(aluno=aluno)
+    else:
+        # Se for instrutor → opcionalmente pesquisar por aluno
+        aluno_nome = request.GET.get("aluno", "").strip()
+        if aluno_nome:
+            treinos = treinos.filter(
+                Q(aluno__nome__icontains=aluno_nome) |
+                Q(aluno__email__icontains=aluno_nome)
+            )
+
+    # Ordenação inicial
+    treinos = treinos.order_by("-data")
+
+    # Paginação
+    paginator = Paginator(treinos, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        "admin/listar_treinos.html",
+        {
+            "page_obj": page_obj,
+            "aluno_nome": request.GET.get("aluno", ""),
+        }
+    )
+
+
+from django.shortcuts import render
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from treinos.models import FichaTreino, FichaExercicio, Aluno
+
+
+@login_required
+def lista_fichas(request):
+    aluno_id = request.GET.get("aluno")
+    ordenar = request.GET.get("ordenar", "data_criacao")
+    direcao = request.GET.get("direcao", "asc")
+    termo = request.GET.get("q", "")
+
+    # Ajusta campos reais para ordenação
+    if ordenar == "aluno":
+        ordem = "aluno__nome" if direcao == "asc" else "-aluno__nome"
+    else:
+        # Campos válidos: data_criacao, id, observacoes
+        ordem = ordenar if direcao == "asc" else f"-{ordenar}"
+
+    # Filtros
+    query = Q()
+    if aluno_id:
+        query &= Q(aluno_id=aluno_id)
+
+    if termo:
+        query &= (
+            Q(observacoes__icontains=termo)
+            | Q(aluno__nome__icontains=termo)
+        )
+
+    # Consulta
+    fichas = (
+        FichaTreino.objects.filter(query)
+        .select_related("aluno")
+        .prefetch_related("exercicios__exercicio")
+        .order_by(ordem)
+    )
+
+    # Paginação
+    paginator = Paginator(fichas, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # Opções do menu de ordenação (frontend)
+    sort_options = {
+        "data_criacao": "desc" if ordenar == "data_criacao" and direcao == "asc" else "asc",
+        "aluno": "desc" if ordenar == "aluno" and direcao == "asc" else "asc",
+        "id": "desc" if ordenar == "id" and direcao == "asc" else "asc",
+    }
+
+    context = {
+        "page_obj": page_obj,
+        "current_sort": ordenar,
+        "current_direction": direcao,
+        "sort_options": sort_options,
+        "termo": termo,
+        "aluno_id": aluno_id,
+    }
+
+    return render(request, "fichas/listar_fichas.html", context)
 
 @login_required
 def historico_treinos(request: HttpRequest) -> HttpResponse:

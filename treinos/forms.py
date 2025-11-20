@@ -39,8 +39,10 @@ class ExercicioForm(forms.ModelForm):
 class FichaTreinoForm(forms.ModelForm):
     class Meta:
         model = FichaTreino
-        fields = ["aluno", "observacoes"]
+        fields = ["nome", "motivo","aluno", "observacoes"]
         widgets = {
+            "nome": forms.TextInput(attrs={"class": "form-control"}),
+            "motivo": forms.TextInput(attrs={"class": "form-control", "list": "grupos-musculares"}),
             "aluno": forms.Select(attrs={"class": "form-control"}),
             "observacoes": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
         }

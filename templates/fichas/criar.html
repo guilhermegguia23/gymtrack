@@ -126,10 +126,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const removeExercicio = (card) => {
     const cards = container.querySelectorAll(".exercise-card");
     if (cards.length <= 1) {
+      // se tiver apenas 1 exercicio na tela => apenas limpa o que restou e atualiza os indices
       resetCardFields(card);
       updateIndexes();
       return;
     }
+    // se tiver mais de 1 ele remove o selecionado e atualiza indices
     card.remove();
     updateIndexes();
   };

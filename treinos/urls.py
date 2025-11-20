@@ -17,5 +17,7 @@ urlpatterns = [
     path("treino-do-dia/", views.treino_do_dia, name="treino_do_dia"),
     path("historico/", views.historico_treinos, name="historico"),
     path("historico/<int:pk>/", views.detalhes_treino, name="detalhes_treino"),
+    path("lista-treinos/", views.lista_treinos, name="lista_treinos"),
+    path("lista-fichas/", views.lista_fichas, name="lista_fichas"),
 ]
 
