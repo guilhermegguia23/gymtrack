@@ -11,7 +11,7 @@
     <p><strong>Aluno:</strong> {{ treino.aluno.nome }}</p>
     <p><strong>Data:</strong> {{ treino.data|date:"d/m/Y" }}</p>
     <ul class="list-group">
-      {% for item in ficha_exercicios %}
+      {% for item in treino_exercicios %}
       <li class="list-group-item">
         <strong>{{ item.exercicio.nome }}</strong> - {{ item.series }} x {{ item.repeticoes }}
       </li>

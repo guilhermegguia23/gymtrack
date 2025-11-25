@@ -7,9 +7,9 @@
   </div>
   <div class="card-body">
     <p><strong>Data:</strong> {{ treino.data|date:"d/m/Y" }}</p>
-    <p><strong>Ficha:</strong> {{ treino.ficha }}</p>
+    <p><strong>Treino:</strong> {{ treino.treino.nome }} (Ficha: {{ treino.treino.ficha }})</p>
     <ul class="list-group">
-      {% for item in ficha_exercicios %}
+      {% for item in treino_exercicios %}
       <li class="list-group-item d-flex justify-content-between">
         <div>
           <strong>{{ item.exercicio.nome }}</strong><br>

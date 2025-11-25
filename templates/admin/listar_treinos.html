@@ -6,7 +6,6 @@
     <h2 class="h4 mb-0">Treinos</h2>
 
     {% if not aluno %}
-    <!-- Pesquisa por aluno (instrutor) -->
     <form method="get" class="d-flex gap-2">
       <input type="text" name="aluno" placeholder="Pesquisar aluno"
              value="{{ aluno_nome }}" class="form-control form-control-sm">
@@ -22,7 +21,7 @@
         <thead>
           <tr>
             <th>Aluno</th>
-            <th>Ficha</th>
+            <th>Treino</th>
             <th>Data</th>
             <th>Status</th>
             <th class="text-end">Ações</th>
@@ -32,7 +31,7 @@
           {% for treino in page_obj %}
           <tr>
             <td>{{ treino.aluno.nome }}</td>
-            <td>{{ treino.ficha.nome }}</td>
+            <td>Treino {{ treino.treino.nome }} ({{ treino.treino.ficha }})</td>
             <td>{{ treino.data|date:"d/m/Y" }}</td>
             <td>
               {% if treino.finalizado %}

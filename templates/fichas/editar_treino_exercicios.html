@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0">Exercícios do Treino {{ treino.nome }}</h5>
+      <small class="text-muted">Ficha de {{ ficha.aluno.nome }}</small>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Voltar</a>
+  </div>
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {{ formset.management_form }}
+      <div class="row g-3 exercicios-container">
+        {% for form in formset %}
+          <div class="col-12 col-md-6 col-xl-4 exercicio-item">
+            <div class="border rounded p-3 h-100">
+              {% for field in form.visible_fields %}
+                <div class="mb-2">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+              {% if form.instance.pk %}
+                <div class="form-check">
+                  {{ form.DELETE }} <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Remover</label>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <button class="btn btn-outline-primary" type="button" id="add-exercicio">+ Adicionar exercício</button>
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Cancelar</a>
+          <button class="btn btn-primary" type="submit">Salvar alterações</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<template id="empty-form-template">
+  <div class="col-12 col-md-6 col-xl-4 exercicio-item">
+    <div class="border rounded p-3 h-100">
+      {% for field in formset.empty_form.visible_fields %}
+        <div class="mb-2">
+          <label class="form-label" data-name="{{ field.html_name }}">{{ field.label }}</label>
+          {{ field }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</template>
+<script>
+  // Permite adicionar dinamicamente novos exercícios ao formset sem recarregar a página.
+  document.addEventListener("DOMContentLoaded", () => {
+    const addBtn = document.getElementById("add-exercicio");
+    const container = document.querySelector(".exercicios-container");
+    const totalInput = document.querySelector("[name='{{ formset.prefix }}-TOTAL_FORMS']");
+    const template = document.getElementById("empty-form-template");
+
+    if (!addBtn || !container || !totalInput || !template) return;
+
+    addBtn.addEventListener("click", () => {
+      const idx = parseInt(totalInput.value, 10);
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = template.innerHTML.trim();
+      const node = wrapper.firstElementChild;
+      // Atualiza todos os names/ids/for com o índice novo para o formset
+      node.querySelectorAll("[name],[id],[data-name],[for]").forEach((el) => {
+        ["name", "id", "for", "data-name"].forEach((attr) => {
+          const val = el.getAttribute(attr);
+          if (!val) return;
+          el.setAttribute(attr, val.replace(/__prefix__/g, idx));
+        });
+      });
+      container.appendChild(node);
+      totalInput.value = idx + 1; // mantém TOTAL_FORMS atualizado para o formset
+    });
+  });
+</script>
+{% endblock %}

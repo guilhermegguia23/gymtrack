@@ -6,8 +6,8 @@
 <div class="card table-card">
   <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
     <div>
-      <h2 class="h4 mb-0">Fichas de Treino</h2>
-      <p class="text-muted mb-0">Acompanhe o histórico e reorganize rapidamente por data ou status.</p>
+      <h2 class="h4 mb-0">Histórico de Treinos</h2>
+      <p class="text-muted mb-0">Acompanhe o que já foi executado e filtre por data ou status.</p>
     </div>
   </div>
   {% if page_obj %}
@@ -28,7 +28,7 @@
                     </a>
                   {% endwith %}
                 </th>
-                <th scope="col">Ficha</th>
+                <th scope="col">Treino</th>
                 <th scope="col">
                   {% with next_dir=sort_options.finalizado %}
                     <a class="table-sort {% if current_sort == 'finalizado' %}table-sort--active{% endif %}"
@@ -51,7 +51,8 @@
                     <div class="text-muted small">Estimativa: {{ treino.estimativa_duracao }} min</div>
                   </td>
                   <td>
-                    <div class="fw-semibold">{{ treino.ficha }}</div>
+                    <div class="fw-semibold">Treino {{ treino.treino.nome }}</div>
+                    <div class="text-muted small">Ficha: {{ treino.treino.ficha }}</div>
                     <div class="text-muted small">Aluno: {{ treino.aluno.nome }}</div>
                   </td>
                   <td>
@@ -70,19 +71,19 @@
           </table>
         </div>
       {% else %}
-        <div class="text-center text-muted py-5">Nenhuma ficha encontrada.</div>
+        <div class="text-center text-muted py-5">Nenhum treino encontrado.</div>
       {% endif %}
     </div>
     {% with query='ordenar='|add:current_sort|add:'&direcao='|add:current_direction %}
       <div class="card-footer d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
         {% if page_obj.paginator.count %}
           <small class="text-muted">
-            Exibindo {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} fichas
+            Exibindo {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} treinos
           </small>
         {% else %}
           <small class="text-muted">Nenhum registro encontrado</small>
         {% endif %}
-        <nav aria-label="Paginação de fichas">
+        <nav aria-label="Paginação de treinos">
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
               {% if page_obj.has_previous %}
@@ -117,7 +118,7 @@
         {% if mensagem %}
           {{ mensagem }}
         {% else %}
-          Não há fichas disponíveis para exibição.
+          Não há treinos disponíveis para exibição.
         {% endif %}
       </div>
     </div>

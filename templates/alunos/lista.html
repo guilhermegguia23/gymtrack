@@ -36,6 +36,7 @@
                   </a>
                 {% endwith %}
               </th>
+              <th scope="col">Usuário</th>
               <th scope="col">
                 {% with next_dir=sort_options.data_nascimento %}
                   <a class="table-sort {% if current_sort == 'data_nascimento' %}table-sort--active{% endif %}"
@@ -70,6 +71,14 @@
                 <td>
                   <span class="text-muted small d-block">Email</span>
                   {{ aluno.email }}
+                </td>
+                <td>
+                  <span class="text-muted small d-block">Login</span>
+                  {% if aluno.usuario %}
+                    {{ aluno.usuario.username }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
                 </td>
                 <td>
                   <span class="text-muted small d-block">Data</span>

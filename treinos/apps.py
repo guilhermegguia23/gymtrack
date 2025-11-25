@@ -5,3 +5,7 @@ class TreinosConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "treinos"
 
+    def ready(self):
+        # Importa sinais para criação/atualização automática de usuários vinculados ao Aluno.
+        from . import signals  # noqa: F401
+

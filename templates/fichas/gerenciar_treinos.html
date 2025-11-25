@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0">Treinos da Ficha</h5>
+      <small class="text-muted">Ficha de {{ ficha.aluno.nome }} {% if ficha.nome %}- {{ ficha.nome }}{% endif %}</small>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'treinos:lista_fichas' %}">Voltar</a>
+      <a class="btn btn-outline-success btn-sm" href="{% url 'treinos:ativar_ficha' ficha_id=ficha.id %}">Marcar como ativa</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <h6 class="mb-3">Cadastrar novo treino (A, B, C...)</h6>
+    <form method="post" class="row g-3 mb-4">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="col-md-4">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit">Adicionar</button>
+      </div>
+    </form>
+
+    <h6 class="mb-2">Treinos cadastrados</h6>
+    {% if treinos %}
+      <div class="list-group">
+        {% for treino in treinos %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>Treino {{ treino.nome }}</strong>
+              <small class="text-muted ms-2">Ordem {{ treino.ordem }}</small>
+            </div>
+            <div class="d-flex gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="{% url 'treinos:editar_treino_exercicios' treino_id=treino.id %}">Exercícios</a>
+              <form method="post" action="{% url 'treinos:remover_treino' treino_id=treino.id %}" onsubmit="return confirm('Remover este treino?')">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger btn-sm" type="submit">Remover</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">Nenhum treino cadastrado ainda.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

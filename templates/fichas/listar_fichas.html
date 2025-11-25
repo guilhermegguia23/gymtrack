@@ -5,7 +5,7 @@
   <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
     <div>
       <h2 class="h4 mb-0">Fichas de Treino</h2>
-      <p class="text-muted mb-0">Visualize as fichas de treino e seus exercícios.</p>
+      <p class="text-muted mb-0">Visualize as fichas de treino, seus treinos e status.</p>
     </div>
   </div>
 
@@ -40,9 +40,9 @@
                 {% endwith %}
               </th>
 
-              <th scope="col">
-                Exercícios
-              </th>
+              <th scope="col">Treinos</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end">Ações</th>
 
             </tr>
           </thead>
@@ -59,16 +59,23 @@
                 </td>
 
                 <td>
-                  <ul class="mb-0">
-                    {% for item in ficha.exercicios.all %}
-                      <li>
-                        <strong>{{ item.exercicio.nome }}</strong> — 
-                        {{ item.series }}x{{ item.repeticoes }}
-                      </li>
+                  <ul class="mb-0 small">
+                    {% for treino in ficha.treinos.all %}
+                      <li><strong>{{ treino.nome }}</strong> (ordem {{ treino.ordem }})</li>
                     {% empty %}
-                      <li class="text-muted">Nenhum exercício cadastrado.</li>
+                      <li class="text-muted">Nenhum treino cadastrado.</li>
                     {% endfor %}
                   </ul>
+                </td>
+                <td>
+                  {% if ficha.ativa %}
+                    <span class="badge bg-success">Ativa</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Inativa</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Gerenciar</a>
                 </td>
 
               </tr>
