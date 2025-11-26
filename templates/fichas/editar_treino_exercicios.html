@@ -84,6 +84,12 @@
     const getActiveCards = () =>
       Array.from(container.querySelectorAll(".exercicio-card")).filter((card) => !card.classList.contains("is-deleted"));
 
+    const cardHasData = (card) =>
+      Array.from(card.querySelectorAll("input, select, textarea")).some((input) => {
+        if (input.name.endsWith("-DELETE") || input.name.endsWith("-ordem")) return false;
+        return Boolean(input.value);
+      });
+
     const resetCardFields = (card) => {
       card.classList.remove("is-deleted");
       card.style.display = "";
@@ -107,15 +113,18 @@
       });
       const ordemField = card.querySelector("input[name$='-ordem']");
       if (ordemField) {
-        ordemField.value = 1;
+        ordemField.value = "";
       }
     };
 
     const updateOrderFields = () => {
       getActiveCards().forEach((card, index) => {
         const ordemField = card.querySelector("input[name$='-ordem']");
-        if (ordemField) {
+        if (!ordemField) return;
+        if (cardHasData(card)) {
           ordemField.value = index + 1;
+        } else {
+          ordemField.value = "";
         }
       });
     };
