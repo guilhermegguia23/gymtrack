@@ -1,4 +1,4 @@
-{% load static %}
+{% load static treinos_tags %}
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -10,59 +10,68 @@
   </head>
   <body class="{% if user.is_authenticated %}app-auth{% else %}app-guest{% endif %}">
     {% if user.is_authenticated %}
-      <div class="app-shell">
-        <aside class="sidebar">
-          <div class="sidebar__brand">
-            <a class="sidebar__brand-link" href="{% url 'treinos:lista_alunos' %}">
-              <img class="sidebar__logo" src="{% static 'images/peso.png' %}" alt="GymTrack">
-              <span>GymTrack</span>
-            </a>
-            <span class="sidebar__tag">Painel</span>
-          </div>
-          <nav class="sidebar__menu">
-            <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_alunos' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_alunos' %}">Alunos</a>
-            <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_exercicios' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_exercicios' %}">Exercícios</a>
-            <a class="sidebar__link {% if request.resolver_match.url_name == 'criar_ficha' %}sidebar__link--active{% endif %}" href="{% url 'treinos:criar_ficha' %}">Criar Ficha</a>
-            <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_fichas' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_fichas' %}">Fichas</a>
-            {% comment %} <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_treinos' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_treinos' %}">Treinos</a> {% endcomment %}
-            {% comment %} <a class="sidebar__link {% if request.resolver_match.url_name == 'treino_do_dia' %}sidebar__link--active{% endif %}" href="{% url 'treinos:treino_do_dia' %}">Treino do Dia</a>
-            <a class="sidebar__link {% if request.resolver_match.url_name == 'historico' %}sidebar__link--active{% endif %}" href="{% url 'treinos:historico' %}">Histórico</a> {% endcomment %}
-          </nav>
-          <div class="sidebar__footer">
-            <div class="sidebar__user">
-              <span class="sidebar__hello">Olá,</span>
-              <strong>{{ user.username }}</strong>
+      {% with is_aluno=user|has_group:"aluno" %}
+        <div class="app-shell">
+          <aside class="sidebar">
+            <div class="sidebar__brand">
+              <a class="sidebar__brand-link" href="{% if is_aluno %}{% url 'treinos:treino_do_dia' %}{% else %}{% url 'treinos:lista_alunos' %}{% endif %}">
+                <img class="sidebar__logo" src="{% static 'images/peso.png' %}" alt="GymTrack">
+                <span>GymTrack</span>
+              </a>
+              <span class="sidebar__tag">Painel</span>
             </div>
-            <form method="post" action="{% url 'logout' %}" class="w-100">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-outline-light w-100">Sair</button>
-            </form>
-          </div>
-        </aside>
-        <main class="main-panel">
-          <header class="main-panel__header">
-            <div>
-              <p class="text-muted mb-0">GymTrack</p>
-              <h1 class="main-panel__title">Gestão inteligente de treinos</h1>
+            <nav class="sidebar__menu">
+              {% if is_aluno %}
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'treino_do_dia' %}sidebar__link--active{% endif %}" href="{% url 'treinos:treino_do_dia' %}">Treino do Dia</a>
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'historico' %}sidebar__link--active{% endif %}" href="{% url 'treinos:historico' %}">Historico de Treino</a>
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'perfil' %}sidebar__link--active{% endif %}" href="{% url 'treinos:perfil' %}">Perfil</a>
+              {% else %}
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_alunos' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_alunos' %}">Alunos</a>
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_exercicios' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_exercicios' %}">Exercicios</a>
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'criar_ficha' %}sidebar__link--active{% endif %}" href="{% url 'treinos:criar_ficha' %}">Criar Ficha</a>
+                <a class="sidebar__link {% if request.resolver_match.url_name == 'lista_fichas' %}sidebar__link--active{% endif %}" href="{% url 'treinos:lista_fichas' %}">Fichas</a>
+              {% endif %}
+            </nav>
+            <div class="sidebar__footer">
+              <div class="sidebar__user">
+                <span class="sidebar__hello">Ola,</span>
+                <strong>{{ user.username }}</strong>
+              </div>
+              <form method="post" action="{% url 'logout' %}" class="w-100">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light w-100">Sair</button>
+              </form>
             </div>
-            <div class="d-none d-md-flex gap-2">
-              <a href="{% url 'treinos:criar_ficha' %}" class="btn btn-primary">+ Nova Ficha</a>
-              <a href="{% url 'treinos:treino_do_dia' %}" class="btn btn-outline-primary">Treino do Dia</a>
+          </aside>
+          <main class="main-panel">
+            <header class="main-panel__header">
+              <div>
+                <p class="text-muted mb-0">GymTrack</p>
+                <h1 class="main-panel__title">Gestao inteligente de treinos</h1>
+              </div>
+              <div class="d-none d-md-flex gap-2">
+                {% if is_aluno %}
+                  <a href="{% url 'treinos:treino_do_dia' %}" class="btn btn-outline-primary">Treino do Dia</a>
+                {% else %}
+                  <a href="{% url 'treinos:criar_ficha' %}" class="btn btn-primary">+ Nova Ficha</a>
+                  <a href="{% url 'treinos:lista_alunos' %}" class="btn btn-outline-primary">Alunos</a>
+                {% endif %}
+              </div>
+            </header>
+            <div class="main-panel__content">
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+              {% block content %}{% endblock %}
             </div>
-          </header>
-          <div class="main-panel__content">
-            {% if messages %}
-              {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                  {{ message }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-              {% endfor %}
-            {% endif %}
-            {% block content %}{% endblock %}
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      {% endwith %}
     {% else %}
       <div class="login-hero">
         <div class="login-hero__form">
@@ -70,7 +79,7 @@
             <div class="login-card shadow-lg">
               <div class="login-card__header">
                 <h2>Acesse o painel</h2>
-                <p>Entre com seu usuário para visualizar cadastros e treinos.</p>
+                <p>Entre com seu usuario para visualizar cadastros e treinos.</p>
               </div>
               <a class="btn btn-primary w-100" href="{% url 'login' %}">Ir para a tela de login</a>
             </div>

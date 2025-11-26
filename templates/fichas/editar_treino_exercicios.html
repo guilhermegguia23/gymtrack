@@ -3,7 +3,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
-      <h5 class="mb-0">Exercícios do Treino {{ treino.nome }}</h5>
+      <h5 class="mb-0">Exercicios do Treino {{ treino.nome }}</h5>
       <small class="text-muted">Ficha de {{ ficha.aluno.nome }}</small>
     </div>
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Voltar</a>
@@ -15,28 +15,35 @@
       <div class="row g-3 exercicios-container">
         {% for form in formset %}
           <div class="col-12 col-md-6 col-xl-4 exercicio-item">
-            <div class="border rounded p-3 h-100">
-              {% for field in form.visible_fields %}
-                <div class="mb-2">
-                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                  {{ field }}
-                  {% if field.errors %}
-                    <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
-                  {% endif %}
-                </div>
+            <div class="border rounded p-3 h-100 exercicio-card">
+              {% for hidden in form.hidden_fields %}
+                {{ hidden }}
               {% endfor %}
-           <div class="mb-2">
-                    <button type="button" class="btn btn-outline-danger btn-sm js-remove-exercicio">Remover</button>
-                </div>
+              {% for field in form.visible_fields %}
+                {% if field.name == "DELETE" %}
+                  {{ field.as_hidden }}
+                {% else %}
+                  <div class="mb-2">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-danger btn-sm js-remove-exercicio">Remover</button>
+              </div>
             </div>
           </div>
         {% endfor %}
       </div>
       <div class="d-flex justify-content-between align-items-center mt-3">
-        <button class="btn btn-outline-primary" type="button" id="add-exercicio">+ Adicionar exercício</button>
+        <button class="btn btn-outline-primary" type="button" id="add-exercicio">+ Adicionar exercicio</button>
         <div class="d-flex gap-2">
           <a class="btn btn-outline-secondary" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Cancelar</a>
-          <button class="btn btn-primary" type="submit">Salvar alterações</button>
+          <button class="btn btn-primary" type="submit">Salvar alteracoes</button>
         </div>
       </div>
     </form>
@@ -44,89 +51,124 @@
 </div>
 <template id="empty-form-template">
   <div class="col-12 col-md-6 col-xl-4 exercicio-item">
-    <div class="border rounded p-3 h-100">
-      {% for field in formset.empty_form.visible_fields %}
-        <div class="mb-2">
-          <label class="form-label" data-name="{{ field.html_name }}">{{ field.label }}</label>
-          {{ field }}
-        </div>
+    <div class="border rounded p-3 h-100 exercicio-card">
+      {% for hidden in formset.empty_form.hidden_fields %}
+        {{ hidden }}
       {% endfor %}
+      {% for field in formset.empty_form.visible_fields %}
+        {% if field.name == "DELETE" %}
+          {{ field.as_hidden }}
+        {% else %}
+          <div class="mb-2">
+            <label class="form-label" data-name="{{ field.html_name }}">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endif %}
+      {% endfor %}
+      <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-outline-danger btn-sm js-remove-exercicio">Remover</button>
+      </div>
     </div>
   </div>
 </template>
 <script>
-  // Permite adicionar dinamicamente novos exercícios ao formset sem recarregar a página.
   document.addEventListener("DOMContentLoaded", () => {
-    const addBtn = document.getElementById("add-exercicio");
+    const prefix = "{{ formset.prefix }}";
     const container = document.querySelector(".exercicios-container");
-    const totalInput = document.querySelector("[name='{{ formset.prefix }}-TOTAL_FORMS']");
+    const addBtn = document.getElementById("add-exercicio");
+    const totalInput = document.querySelector(`[name='${prefix}-TOTAL_FORMS']`);
     const template = document.getElementById("empty-form-template");
 
-    if (!addBtn || !container || !totalInput || !template) return;
+    if (!container || !totalInput) return;
 
-    addBtn.addEventListener("click", () => {
-      const idx = parseInt(totalInput.value, 10);
-      const wrapper = document.createElement("div");
-      wrapper.innerHTML = template.innerHTML.trim();
-      const node = wrapper.firstElementChild;
-      // Atualiza todos os names/ids/for com o índice novo para o formset
-      node.querySelectorAll("[name],[id],[data-name],[for]").forEach((el) => {
-        ["name", "id", "for", "data-name"].forEach((attr) => {
-          const val = el.getAttribute(attr);
-          if (!val) return;
-          el.setAttribute(attr, val.replace(/__prefix__/g, idx));
-        });
+    const getActiveCards = () =>
+      Array.from(container.querySelectorAll(".exercicio-card")).filter((card) => !card.classList.contains("is-deleted"));
+
+    const resetCardFields = (card) => {
+      card.classList.remove("is-deleted");
+      card.style.display = "";
+      card.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.name.endsWith("-DELETE")) {
+          input.checked = false;
+          return;
+        }
+        if (input.type === "hidden") {
+          return;
+        }
+        if (input.tagName === "SELECT") {
+          input.selectedIndex = 0;
+          return;
+        }
+        if (input.type === "checkbox" || input.type === "radio") {
+          input.checked = false;
+        } else {
+          input.value = "";
+        }
       });
-      container.appendChild(node);
-      totalInput.value = idx + 1; // mantém TOTAL_FORMS atualizado para o formset
-    });
-  });
-
-  const updateIndexes = () => {
-    const cards = Array.from(container.querySelectorAll(".exercise-card"));
-    cards.forEach((card, index) => {
-      card.dataset.index = index;
-      card.querySelectorAll(".exercise-number").forEach((el) => {
-        el.textContent = index + 1;
-      });
-
-      card.querySelectorAll("input, select, textarea, label").forEach((el) => {
-        ["name", "id", "for"].forEach((attr) => {
-          const current = el.getAttribute(attr);
-          if (!current) return;
-          el.setAttribute(attr, current.replace(indexRegex, `${formPrefix}-${index}-`));
-        });
-      });
-
       const ordemField = card.querySelector("input[name$='-ordem']");
-      if (ordemField && !ordemField.value) {
-        ordemField.value = index + 1;
+      if (ordemField) {
+        ordemField.value = 1;
+      }
+    };
+
+    const updateOrderFields = () => {
+      getActiveCards().forEach((card, index) => {
+        const ordemField = card.querySelector("input[name$='-ordem']");
+        if (ordemField) {
+          ordemField.value = index + 1;
+        }
+      });
+    };
+
+    const markAsDeleted = (card) => {
+      const deleteInput = card.querySelector("input[name$='-DELETE']");
+      if (deleteInput) {
+        deleteInput.checked = true;
+      }
+      card.classList.add("is-deleted");
+      card.style.display = "none";
+    };
+
+    const handleRemove = (card) => {
+      const activeCards = getActiveCards();
+      if (activeCards.length <= 1) {
+        resetCardFields(card);
+        updateOrderFields();
+        return;
+      }
+      markAsDeleted(card);
+      updateOrderFields();
+    };
+
+    container.addEventListener("click", (event) => {
+      const btn = event.target.closest(".js-remove-exercicio");
+      if (!btn) return;
+      event.preventDefault();
+      const card = btn.closest(".exercicio-card");
+      if (card) {
+        handleRemove(card);
       }
     });
-    totalInput.value = cards.length;
-  };
 
+    const addForm = () => {
+      if (!template) return;
+      const idx = parseInt(totalInput.value, 10);
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = template.innerHTML.trim().replace(/__prefix__/g, idx);
+      const node = wrapper.firstElementChild;
+      container.appendChild(node);
+      totalInput.value = idx + 1;
+      updateOrderFields();
+    };
 
-  const removeExercicio = (card) => {
-    const cards = container.querySelectorAll(".exercise-card");
-    if (cards.length <= 1) {
-      // se tiver apenas 1 exercicio na tela => apenas limpa o que restou e atualiza os indices
-      resetCardFields(card);
-      updateIndexes();
-      return;
+    if (addBtn) {
+      addBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        addForm();
+      });
     }
-    // se tiver mais de 1 ele remove o selecionado e atualiza indices
-    card.remove();
-    updateIndexes();
-  };
 
-  container.addEventListener("click", (event) => {
-    const btn = event.target.closest(".js-remove-exercicio");
-    if (!btn) return;
-    event.preventDefault();
-    const card = btn.closest(".exercise-card");
-    if (card) removeExercicio(card);
+    updateOrderFields();
   });
-
 </script>
 {% endblock %}

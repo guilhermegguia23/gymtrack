@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load treinos_tags %}
 {% block content %}
 {% if mensagem %}
   <div class="alert alert-info">{{ mensagem }}</div>
@@ -29,11 +30,12 @@
                   {% endwith %}
                 </th>
                 <th scope="col">Treino</th>
+                <th scope="col">Tempo</th>
                 <th scope="col">
                   {% with next_dir=sort_options.finalizado %}
                     <a class="table-sort {% if current_sort == 'finalizado' %}table-sort--active{% endif %}"
                       href="?ordenar=finalizado&direcao={{ next_dir }}">
-                      Status
+                      Concluido
                       {% if current_sort == 'finalizado' %}
                         <span class="table-sort__icon table-sort__icon--{{ current_direction }}"></span>
                       {% endif %}
@@ -50,17 +52,22 @@
                     <strong>{{ treino.data|date:"d/m/Y" }}</strong>
                     <div class="text-muted small">Estimativa: {{ treino.estimativa_duracao }} min</div>
                   </td>
-                  <td>
-                    <div class="fw-semibold">Treino {{ treino.treino.nome }}</div>
-                    <div class="text-muted small">Ficha: {{ treino.treino.ficha }}</div>
-                    <div class="text-muted small">Aluno: {{ treino.aluno.nome }}</div>
-                  </td>
-                  <td>
-                    {% if treino.finalizado %}
-                      <span class="badge text-bg-success">Finalizado</span>
-                    {% else %}
-                      <span class="badge text-bg-warning">Pendente</span>
-                    {% endif %}
+                <td>
+                  <div class="fw-semibold">Treino {{ treino.treino.nome }}</div>
+                  <div class="text-muted small">Ficha: {{ treino.treino.ficha }}</div>
+                  <div class="text-muted small">Aluno: {{ treino.aluno.nome }}</div>
+                </td>
+                <td>
+                  {% if treino.tempo_total %}
+                    <span class="badge text-bg-secondary">{{ treino.tempo_total|humanize_duration }}</span>
+                  {% else %}
+                    <span class="text-muted small">Em andamento</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge {% if treino.finalizado %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                    {% if treino.finalizado %}Concluido{% else %}Pendente{% endif %}
+                  </span>
                   </td>
                   <td class="text-end">
                     <a class="btn btn-outline-primary btn-sm" href="{% url 'treinos:detalhes_treino' treino.pk %}">Detalhes</a>

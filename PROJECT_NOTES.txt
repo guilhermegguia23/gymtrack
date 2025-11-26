@@ -1,0 +1,27 @@
+GymTrack - Visão Geral
+
+Principais funcionalidades
+- Cadastro e gestão de alunos, exercícios e fichas/treinos (inclui ordem de treinos e exercícios por ficha).
+- Treino do dia para o aluno (seleção automática e controle de progresso).
+- Histórico de treinos finalizados com detalhes.
+- Perfil do aluno (edição de nome/email).
+- Controle de permissões: alunos acessam apenas treino do dia, histórico e perfil; instrutores/superuser podem gerenciar cadastros.
+
+Ciclo de vida do projeto
+1) Cadastro de aluno: cria usuário vinculado e o associa ao grupo "aluno".
+2) Cadastro de exercícios: catálogo de movimentos com grupo muscular e descrição.
+3) Criação de ficha: para um aluno, opcionalmente ativando-a; é criado pelo menos um treino (A/B/C...).
+4) Gestão de treinos da ficha: definir nome/ordem do treino, editar e remover; adicionar/editar exercícios do treino com séries/repetições/ordem.
+5) Uso diário pelo aluno: treino do dia seleciona o próximo treino da ficha ativa; aluno marca exercícios concluídos e finaliza treino.
+6) Histórico: lista treinos finalizados e permite ver detalhes; progresso é persistido.
+
+Principais recursos Django aplicados
+- Apps separados: alunos, exercicios, fichas (views/forms) e app base treinos (models, templatetags, utils, urls).
+- Models relacionais: Aluno, Exercicio, FichaTreino, Treino, TreinoExercicio, TreinoDiario, TreinoProgresso (FK, unique_together, ordering).
+- Signals: post_save de Aluno cria/atualiza usuário Django e associa ao grupo "aluno".
+- Inline formsets: TreinoExercicioFormSet para adicionar/remover exercícios dentro de um treino.
+- Autenticação/autorização: @login_required, grupos, checagem de superuser/staff, bloqueio de módulos para alunos.
+- Mensagens de feedback: django.contrib.messages em toda a UI.
+- Paginação e ordenação: Paginator e helpers para ordenar/paginar tabelas.
+- Templates: blocos base, uso de filtros customizados (has_group, get_item), partials de listagem e formulários Bootstrap.
+- Rotas: namespaces em treinos/urls apontando para views dos apps; roteamento de perfil, treino do dia, histórico, CRUDs.

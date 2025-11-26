@@ -12,9 +12,18 @@
     </div>
   </div>
   <div class="card-body">
-    <h6 class="mb-3">Cadastrar novo treino (A, B, C...)</h6>
+    <h6 class="mb-3">
+      {% if treino_em_edicao %}
+        Atualizar treino ({{ treino_em_edicao.nome }})
+      {% else %}
+        Cadastrar novo treino (A, B, C...)
+      {% endif %}
+    </h6>
     <form method="post" class="row g-3 mb-4">
       {% csrf_token %}
+      {% if treino_em_edicao %}
+        <input type="hidden" name="treino_id" value="{{ treino_em_edicao.id }}">
+      {% endif %}
       {% for field in form %}
         <div class="col-md-4">
           <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -25,7 +34,14 @@
         </div>
       {% endfor %}
       <div class="col-12">
-        <button class="btn btn-primary" type="submit">Adicionar</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" type="submit">
+            {% if treino_em_edicao %}Atualizar{% else %}Adicionar{% endif %}
+          </button>
+          {% if treino_em_edicao %}
+            <a class="btn btn-outline-secondary" href="{% url 'treinos:gerenciar_treinos' ficha_id=ficha.id %}">Cancelar</a>
+          {% endif %}
+        </div>
       </div>
     </form>
 
@@ -39,6 +55,7 @@
               <small class="text-muted ms-2">Ordem {{ treino.ordem }}</small>
             </div>
             <div class="d-flex gap-2">
+              <a class="btn btn-outline-secondary btn-sm" href="?editar={{ treino.id }}">Editar</a>
               <a class="btn btn-outline-primary btn-sm" href="{% url 'treinos:editar_treino_exercicios' treino_id=treino.id %}">Exercícios</a>
               <form method="post" action="{% url 'treinos:remover_treino' treino_id=treino.id %}" onsubmit="return confirm('Remover este treino?')">
                 {% csrf_token %}

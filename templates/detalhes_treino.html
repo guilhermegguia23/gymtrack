@@ -13,11 +13,11 @@
       <li class="list-group-item d-flex justify-content-between">
         <div>
           <strong>{{ item.exercicio.nome }}</strong><br>
-          {{ item.series }} séries x {{ item.repeticoes }} repetições
+          {{ item.series }} series x {{ item.repeticoes }} repeticoes
         </div>
         {% with prog=progresso|get_item:item.exercicio.id %}
         <span class="badge {% if prog and prog.concluido %}bg-success{% else %}bg-secondary{% endif %}">
-          {% if prog and prog.concluido %}Concluído{% else %}Pendente{% endif %}
+          {% if prog and prog.concluido %}Concluido{% else %}Pendente{% endif %}
         </span>
         {% endwith %}
       </li>
