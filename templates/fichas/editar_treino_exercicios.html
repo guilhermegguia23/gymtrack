@@ -25,11 +25,9 @@
                   {% endif %}
                 </div>
               {% endfor %}
-              {% if form.instance.pk %}
-                <div class="form-check">
-                  {{ form.DELETE }} <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Remover</label>
+           <div class="mb-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm js-remove-exercicio">Remover</button>
                 </div>
-              {% endif %}
             </div>
           </div>
         {% endfor %}
@@ -83,5 +81,52 @@
       totalInput.value = idx + 1; // mantém TOTAL_FORMS atualizado para o formset
     });
   });
+
+  const updateIndexes = () => {
+    const cards = Array.from(container.querySelectorAll(".exercise-card"));
+    cards.forEach((card, index) => {
+      card.dataset.index = index;
+      card.querySelectorAll(".exercise-number").forEach((el) => {
+        el.textContent = index + 1;
+      });
+
+      card.querySelectorAll("input, select, textarea, label").forEach((el) => {
+        ["name", "id", "for"].forEach((attr) => {
+          const current = el.getAttribute(attr);
+          if (!current) return;
+          el.setAttribute(attr, current.replace(indexRegex, `${formPrefix}-${index}-`));
+        });
+      });
+
+      const ordemField = card.querySelector("input[name$='-ordem']");
+      if (ordemField && !ordemField.value) {
+        ordemField.value = index + 1;
+      }
+    });
+    totalInput.value = cards.length;
+  };
+
+
+  const removeExercicio = (card) => {
+    const cards = container.querySelectorAll(".exercise-card");
+    if (cards.length <= 1) {
+      // se tiver apenas 1 exercicio na tela => apenas limpa o que restou e atualiza os indices
+      resetCardFields(card);
+      updateIndexes();
+      return;
+    }
+    // se tiver mais de 1 ele remove o selecionado e atualiza indices
+    card.remove();
+    updateIndexes();
+  };
+
+  container.addEventListener("click", (event) => {
+    const btn = event.target.closest(".js-remove-exercicio");
+    if (!btn) return;
+    event.preventDefault();
+    const card = btn.closest(".exercise-card");
+    if (card) removeExercicio(card);
+  });
+
 </script>
 {% endblock %}

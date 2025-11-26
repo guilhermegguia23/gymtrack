@@ -95,5 +95,5 @@ TreinoExercicioFormSet = inlineformset_factory(
     extra=1,
     min_num=1,
     validate_min=True,
-    can_delete=True,
+    can_delete=False,
 )

@@ -226,7 +226,7 @@ def editar_treino_exercicios(request: HttpRequest, treino_id: int) -> HttpRespon
     if request.method == "POST":
         if formset.is_valid():
             formset.save()
-            messages.success(request, _("Exerc?cios atualizados."))
+            messages.success(request, _("Exercícios atualizados."))
             return redirect("treinos:editar_treino_exercicios", treino_id=treino.pk)
         messages.error(request, _("Corrija os erros para salvar."))
 
@@ -368,7 +368,7 @@ def treino_do_dia(request: HttpRequest) -> HttpResponse:
                         {"treino": treino, "treino_exercicios": treino_exercicios},
                     )
         except Exception:
-            messages.error(request, _("N?o foi poss?vel atualizar o progresso."))
+            messages.error(request, _("Não foi possível atualizar o progresso."))
             return render(
                 request,
                 "treino_do_dia.html",
@@ -376,7 +376,7 @@ def treino_do_dia(request: HttpRequest) -> HttpResponse:
                     "treino": treino,
                     "treino_exercicios": treino_exercicios,
                     "progresso": progresso_map,
-                    "mensagem": _("N?o foi poss?vel atualizar o progresso."),
+                    "mensagem": _("Não foi possível atualizar o progresso."),
                 },
             )
 
